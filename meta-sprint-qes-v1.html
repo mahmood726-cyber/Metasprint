@@ -1,0 +1,1997 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>META-SPRINT QES V1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --border: #E2E8F0;
+            --border-strong: #CBD5E1;
+            --text: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #64748B;
+            --accent: #C026D3;
+            --accent-light: #FAE8FF;
+            --success: #059669;
+            --success-light: #D1FAE5;
+            --warning: #D97706;
+            --warning-light: #FEF3C7;
+            --danger: #DC2626;
+            --danger-light: #FEE2E2;
+            --purple: #7C3AED;
+            --purple-light: #EDE9FE;
+            --qes: #C026D3;
+            --qes-light: #FAE8FF;
+            --warning-bg: #FFFBEB;
+            --warning-border: #F59E0B;
+            --warning-title: #B45309;
+            --warning-text: #92400E;
+        }
+
+        .dark-mode {
+            --bg: #0F172A;
+            --surface: #1E293B;
+            --border: #334155;
+            --border-strong: #475569;
+            --text: #F1F5F9;
+            --text-secondary: #CBD5E1;
+            --text-muted: #94A3B8;
+            --accent: #E879F9;
+            --accent-light: #701A75;
+            --success: #10B981;
+            --success-light: #032E23;
+            --warning: #F59E0B;
+            --warning-light: #4A2008;
+            --danger: #EF4444;
+            --danger-light: #451A1A;
+            --purple: #A78BFA;
+            --purple-light: #2E1065;
+            --qes: #E879F9;
+            --qes-light: #701A75;
+            --warning-bg: #422006;
+            --warning-border: #92400E;
+            --warning-title: #FBBF24;
+            --warning-text: #FDE68A;
+        }
+        .dark-mode .form-input, .dark-mode .form-textarea, .dark-mode select { background: var(--surface); color: var(--text); }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'IBM Plex Sans', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+        .header { background: linear-gradient(135deg, var(--qes) 0%, #86198F 100%); border-bottom: 1px solid var(--border); padding: 12px 16px; position: sticky; top: 0; z-index: 100; }
+        .header-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .logo { font-weight: 700; font-size: 18px; color: white; }
+        .logo span { color: rgba(255,255,255,0.7); font-weight: 400; font-size: 12px; }
+        .logo .qes-badge { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px; }
+        .header-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .role-badge { background: rgba(255,255,255,0.2); color: white; padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .day-control { display: flex; align-items: center; gap: 8px; }
+        .day-btn { width: 44px; height: 44px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; background: rgba(255,255,255,0.1); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .day-btn:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
+        .day-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .day-display { font-weight: 700; font-size: 16px; min-width: 70px; text-align: center; color: white; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
+        .day-display:hover { background: rgba(255,255,255,0.1); }
+        .day-hint { font-size: 12px; color: rgba(255,255,255,0.7); text-align: center; margin-top: 2px; }
+
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--success); color: white; padding: 12px 20px; border-radius: 8px; font-weight: 500; font-size: 13px; z-index: 1000; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; pointer-events: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .toast.visible { opacity: 1; transform: translateY(0); }
+        .toast.error { background: var(--danger); }
+
+        .tabs { display: flex; gap: 4px; background: var(--surface); padding: 8px 16px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+        .tab { padding: 12px 16px; border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; border-radius: 6px; white-space: nowrap; }
+        .tab:hover { background: var(--bg); }
+        .tab.active { background: var(--qes-light); color: var(--qes); }
+
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+        .card-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .card-title { font-weight: 600; font-size: 15px; }
+        .card-body { padding: 16px; }
+
+        .qes-indicator { background: var(--qes-light); color: var(--qes); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+
+        .phase-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .phase-a { background: var(--purple-light); color: var(--purple); }
+        .phase-b { background: var(--qes-light); color: var(--qes); }
+        .phase-c { background: var(--warning-light); color: var(--warning); }
+        .phase-d { background: var(--success-light); color: var(--success); }
+        .phase-e { background: var(--danger-light); color: var(--danger); }
+
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 12px; }
+        .alert-icon { font-size: 18px; flex-shrink: 0; }
+        .alert-content { flex: 1; }
+        .alert-title { font-weight: 600; margin-bottom: 2px; }
+        .alert-text { font-size: 13px; }
+        .alert-info { background: var(--qes-light); border: 1px solid var(--qes); }
+        .alert-warning { background: var(--warning-light); border: 1px solid var(--warning); }
+        .alert-danger { background: var(--danger-light); border: 1px solid var(--danger); }
+        .alert-success { background: var(--success-light); border: 1px solid var(--success); }
+
+        .checklist-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
+        .checklist-item:hover { background: var(--bg); }
+        .checklist-item.checked { background: var(--success-light); border-color: var(--success); }
+        .check-box { width: 20px; height: 20px; border: 2px solid var(--border-strong); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+        .checklist-item.checked .check-box { background: var(--success); border-color: var(--success); }
+        .check-box svg { color: white; display: none; }
+        .checklist-item.checked .check-box svg { display: block; }
+        .checklist-content { flex: 1; }
+        .checklist-title { font-weight: 500; }
+        .checklist-hint { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        .timeline-bar { height: 8px; background: var(--border); border-radius: 4px; position: relative; margin: 16px 0; }
+        .timeline-fill { height: 100%; background: var(--qes); border-radius: 4px; transition: width 0.3s; }
+        .timeline-markers { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .timeline-marker { text-align: center; }
+        .timeline-marker.active { color: var(--qes); font-weight: 600; }
+        .timeline-marker.passed { color: var(--success); }
+
+        .health-dashboard { background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%); border: 2px solid var(--qes); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .health-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .health-title { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        .health-score { font-size: 24px; font-weight: 700; }
+        .health-score.good { color: var(--success); }
+        .health-score.warning { color: var(--warning); }
+        .health-score.danger { color: var(--danger); }
+        .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+        .health-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+        .health-stat-value { font-size: 20px; font-weight: 700; color: var(--qes); }
+        .health-stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .gate-dots { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
+        .gate-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--text-muted); }
+        .gate-dot.passed { background: var(--success); border-color: var(--success); color: white; }
+        .gate-dot.current { border-color: var(--warning); color: var(--warning); animation: pulse 1.5s infinite; }
+
+        .risk-panel { margin-top: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+        .risk-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .risk-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.02em; text-transform: uppercase; }
+        .risk-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+        .risk-badge.low { background: var(--success-light); color: var(--success); }
+        .risk-badge.medium { background: var(--warning-light); color: var(--warning); }
+        .risk-badge.high { background: var(--danger-light); color: var(--danger); }
+        .risk-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+        .risk-item { font-size: 12px; color: var(--text-secondary); padding: 6px 8px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); }
+        .risk-item.medium { border-color: var(--warning); background: var(--warning-light); color: var(--warning); }
+        .risk-item.high { border-color: var(--danger); background: var(--danger-light); color: var(--danger); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .form-row { margin-bottom: 12px; }
+        .form-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; display: block; }
+        .form-input, .form-textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 13px; }
+        .form-textarea { resize: vertical; min-height: 60px; }
+        .form-hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+        .copy-btn { background: var(--qes); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-family: inherit; font-weight: 600; cursor: pointer; }
+        .copy-btn:hover { background: #A21CAF; }
+        .download-btn { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 10px 20px; border-radius: 6px; font-family: inherit; font-weight: 600; cursor: pointer; }
+        .download-btn:hover { background: var(--bg); }
+        .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+        .template-card { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+        .template-header { padding: 12px 16px; background: var(--bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .template-header:hover { background: var(--border); }
+        .template-name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .template-badge { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .badge-essential { background: var(--danger-light); color: var(--danger); }
+        .badge-qes { background: var(--qes-light); color: var(--qes); }
+        .badge-reference { background: var(--purple-light); color: var(--purple); }
+        .template-body { padding: 16px; display: none; }
+        .template-body.open { display: block; }
+        .template-output { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-top: 12px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: pre-wrap; display: none; }
+        .template-output.visible { display: block; }
+
+        .ref-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .ref-table th, .ref-table td { padding: 10px 12px; border: 1px solid var(--border); text-align: left; }
+        .ref-table th { background: var(--bg); font-weight: 600; }
+
+        .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+        .modal.visible { display: flex; }
+        .modal-card { background: var(--surface); border-radius: 16px; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .modal-title { font-weight: 700; font-size: 18px; }
+        .modal-close { width: 44px; height: 44px; border: none; background: var(--bg); border-radius: 8px; cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; }
+        .modal-body { padding: 24px; }
+
+        .onboarding { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; overflow-y: auto; }
+        .onboarding.hidden { display: none; }
+        .onboarding-card { background: var(--surface); border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+        .onboarding-header { background: linear-gradient(135deg, var(--qes) 0%, #86198F 100%); padding: 24px; border-radius: 16px 16px 0 0; color: white; text-align: center; }
+        .onboarding-body { padding: 24px; }
+        .role-grid { display: grid; gap: 8px; margin-bottom: 24px; }
+        .role-btn { display: flex; align-items: center; gap: 12px; padding: 14px; border: 2px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; text-align: left; font-family: inherit; }
+        .role-btn:hover { border-color: var(--qes); }
+        .role-btn.selected { border-color: var(--qes); background: var(--qes-light); }
+        .role-icon { width: 36px; height: 36px; background: var(--bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .role-info { flex: 1; }
+        .role-name { font-weight: 600; font-size: 14px; }
+        .role-desc { font-size: 11px; color: var(--text-secondary); }
+        .start-btn { width: 100%; padding: 14px; background: var(--qes); color: white; border: none; border-radius: 8px; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .start-btn:disabled { background: var(--border-strong); cursor: not-allowed; }
+
+        .elig-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
+        .elig-item:hover { background: var(--bg); }
+        .elig-item.checked { background: var(--success-light); border-color: var(--success); }
+        .elig-check { width: 22px; height: 22px; border: 2px solid var(--border-strong); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .elig-item.checked .elig-check { background: var(--success); border-color: var(--success); }
+        .elig-check svg { color: white; display: none; }
+        .elig-item.checked .elig-check svg { display: block; }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .freeze-banner { background: var(--danger); color: white; padding: 12px 16px; text-align: center; font-weight: 600; }
+        .freeze-banner.hidden { display: none; }
+
+        .dod-section { margin-bottom: 24px; }
+        .dod-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 12px; border-radius: 8px; }
+        .dod-header.phase-a { background: var(--purple-light); }
+        .dod-header.phase-b { background: var(--qes-light); }
+        .dod-header.phase-c { background: var(--warning-light); }
+        .dod-header.phase-d { background: var(--success-light); }
+        .dod-header.phase-e { background: var(--danger-light); }
+        .dod-title { font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .dod-gate-status { padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        .gate-pending { background: var(--bg); color: var(--text-muted); }
+        .gate-ready { background: var(--warning-light); color: var(--warning); }
+        .gate-passed { background: var(--success-light); color: var(--success); }
+
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: hidden; }
+        .confetti { position: absolute; width: 10px; height: 10px; opacity: 0; animation: confetti-fall 3s ease-out forwards; }
+        @keyframes confetti-fall { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+        .day-jump-modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); display: none; align-items: center; justify-content: center; z-index: 1001; }
+        .day-jump-modal.visible { display: flex; }
+        .day-jump-card { background: var(--surface); border-radius: 12px; padding: 24px; width: 280px; text-align: center; max-width: calc(100vw - 32px); }
+        .day-jump-input { width: 100px; padding: 12px; font-size: 24px; font-weight: 700; text-align: center; border: 2px solid var(--qes); border-radius: 8px; }
+
+        .bootcamp-card { background: linear-gradient(135deg, var(--qes-light) 0%, var(--bg) 100%); border: 2px solid var(--qes); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .bootcamp-title { font-weight: 700; color: var(--qes); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .bootcamp-modules { display: grid; gap: 8px; }
+        .bootcamp-module { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+        .bootcamp-module.completed { background: var(--success-light); border-color: var(--success); }
+        .bootcamp-module-check { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .bootcamp-module.completed .bootcamp-module-check { background: var(--success); border-color: var(--success); color: white; }
+        .bootcamp-module-info { flex: 1; }
+        .bootcamp-module-name { font-weight: 600; font-size: 13px; }
+        .bootcamp-module-time { font-size: 11px; color: var(--text-muted); }
+
+        .tab { position: relative; }
+        .tab-badge { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%; }
+        .tab-badge.needs-attention { background: var(--warning); }
+        .tab-badge.complete { background: var(--success); }
+
+        .story-card { background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+        .story-header { background: linear-gradient(135deg, #86198F 0%, #4A044E 100%); color: white; padding: 20px; cursor: pointer; }
+        .story-header:hover { background: linear-gradient(135deg, #A21CAF 0%, #701A75 100%); }
+        .story-number { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 4px; }
+        .story-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .story-hook { font-size: 14px; opacity: 0.9; font-style: italic; }
+        .story-body { display: none; padding: 0; }
+        .story-body.open { display: block; }
+        .story-scene { padding: 20px; border-bottom: 1px solid var(--border); }
+        .story-scene:last-child { border-bottom: none; }
+        .scene-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
+        .scene-content { font-size: 14px; line-height: 1.7; }
+        .story-question { background: var(--qes-light); border-left: 4px solid var(--qes); padding: 16px; margin: 16px 0; font-size: 15px; font-weight: 600; font-style: italic; color: var(--qes); }
+        .story-contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        .contrast-box { padding: 16px; border-radius: 8px; }
+        .contrast-wrong { background: var(--danger-light); border: 1px solid var(--danger); }
+        .contrast-right { background: var(--success-light); border: 1px solid var(--success); }
+        .contrast-label { font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+        .contrast-wrong .contrast-label { color: var(--danger); }
+        .contrast-right .contrast-label { color: var(--success); }
+        .story-moral { background: linear-gradient(135deg, var(--success-light) 0%, #d1fae5 100%); border: 2px solid var(--success); border-radius: 8px; padding: 20px; margin-top: 16px; }
+        .moral-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--success); font-weight: 700; margin-bottom: 8px; }
+        .moral-text { font-size: 15px; font-weight: 600; color: var(--success); }
+        .story-reflection { background: var(--purple-light); border-radius: 8px; padding: 16px; margin-top: 16px; }
+        .reflection-question { font-size: 14px; color: var(--purple); font-weight: 600; margin-bottom: 8px; }
+        @media (max-width: 640px) { .story-contrast { grid-template-columns: 1fr; } }
+
+        .achievements-panel { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid var(--warning); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .achievements-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .achievements-title { font-weight: 700; font-size: 15px; color: #92400e; display: flex; align-items: center; gap: 8px; }
+        .achievements-count { background: var(--warning); color: white; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+        .achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+        .achievement { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; text-align: center; opacity: 0.4; transition: all 0.3s; }
+        .achievement.earned { opacity: 1; border-color: var(--warning); box-shadow: 0 2px 8px rgba(217, 119, 6, 0.2); }
+        .achievement-icon { font-size: 24px; margin-bottom: 4px; }
+        .achievement-name { font-size: 11px; font-weight: 600; color: var(--text); }
+        .achievement-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .achievement.earned .achievement-icon { animation: achievePulse 0.5s ease; }
+        @keyframes achievePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+        .standup-btn { background: linear-gradient(135deg, var(--purple) 0%, #6d28d9 100%); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+        .standup-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); }
+        .standup-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .standup-modal.open { display: flex; }
+        .standup-card { background: var(--surface); border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .standup-section { background: var(--bg); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .standup-label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+        .standup-items { font-size: 13px; }
+        .standup-item { padding: 4px 0; display: flex; align-items: flex-start; gap: 6px; }
+        .standup-copy { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; }
+        .standup-copy:hover { background: #047857; }
+
+        .help-tip { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; background: var(--text-muted); color: white; border-radius: 50%; font-size: 11px; font-weight: 700; cursor: help; margin-left: 4px; position: relative; }
+        .help-tip:hover { background: var(--qes); }
+        .help-tip::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--text); color: white; padding: 8px 12px; border-radius: 6px; font-size: 11px; font-weight: 400; white-space: normal; width: 200px; text-align: left; opacity: 0; visibility: hidden; transition: all 0.2s; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .help-tip:hover::after { opacity: 1; visibility: visible; }
+        .help-tip::before { content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--text); opacity: 0; visibility: hidden; transition: all 0.2s; }
+        .help-tip:hover::before { opacity: 1; visibility: visible; }
+
+        .handoff-card { background: linear-gradient(135deg, var(--purple-light) 0%, var(--bg) 100%); border: 1px solid var(--purple); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .handoff-title { font-weight: 700; color: var(--purple); font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .handoff-items { display: grid; gap: 4px; }
+        .handoff-item { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+        .handoff-item input { margin: 0; }
+
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .modal-card, .onboarding-card { box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+        @media (max-width: 640px) {
+            .header-inner { flex-direction: column; align-items: stretch; }
+            .header-controls { justify-content: center; }
+            .health-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 641px) and (max-width: 899px) {
+            .health-grid { grid-template-columns: repeat(3, 1fr); }
+            .role-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media print {
+            .header, .tabs, .toast, .modal, .onboarding, .day-jump-modal, .confetti-container { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .card { break-inside: avoid; box-shadow: none; }
+            .container { max-width: 100%; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+
+        /* 2-Tier Tab System */
+        .tab-more-wrapper { position: relative; display: inline-flex; }
+        .tab-more-btn { padding: 12px 16px; border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; border-radius: 6px; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+        .tab-more-btn:hover { background: var(--bg); }
+        .tab-more-btn.has-active { color: var(--qes); }
+        .tab-more-dropdown { display: none; position: absolute; top: 100%; right: 0; min-width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 200; padding: 4px; }
+        .tab-more-dropdown.visible { display: block; }
+        .tab-more-item { display: block; width: 100%; padding: 10px 14px; border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; border-radius: 6px; text-align: left; white-space: nowrap; }
+        .tab-more-item:hover { background: var(--bg); }
+        .tab-more-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+        .tab-more-item.active { background: var(--qes-light); color: var(--qes); }
+        .dark-mode .tab-more-dropdown { box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast" aria-live="polite" aria-atomic="true"><span id="toastIcon">&#10003;</span><span id="toastText">Saved</span></div>
+<div class="confetti-container" id="confettiContainer" aria-hidden="true"></div>
+
+<div class="day-jump-modal" id="dayJumpModal" onclick="closeDayJump(event)">
+    <div class="day-jump-card" onclick="event.stopPropagation()">
+        <div style="font-weight:700;margin-bottom:16px">Jump to Day</div>
+        <input type="number" class="day-jump-input" id="dayJumpInput" inputmode="numeric" aria-label="Jump to day (1-40)" min="1" max="40" value="1" onkeydown="handleDayJumpKey(event)">
+        <div class="btn-row" style="justify-content:center;margin-top:16px">
+            <button class="download-btn" onclick="closeDayJump()">Cancel</button>
+            <button class="copy-btn" onclick="jumpToDay()">Go</button>
+        </div>
+    </div>
+</div>
+
+<!-- BOOTCAMP MODAL -->
+<div class="modal" id="bootcampModal" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width:700px">
+        <div class="modal-header">
+            <div class="modal-title">QES Bootcamp</div>
+            <button class="modal-close" aria-label="Close" onclick="closeModal('bootcampModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="bootcampContent">
+            <div class="bootcamp-lesson" id="lesson-qes-fundamentals">
+                <h3 style="color:var(--qes);margin-bottom:12px">Module 1: QES Fundamentals (10 min)</h3>
+                <div style="background:var(--bg);padding:16px;border-radius:8px;margin-bottom:16px">
+                    <p><strong>What is Qualitative Evidence Synthesis?</strong></p>
+                    <p style="margin:8px 0">QES integrates findings from multiple qualitative studies to generate new insights, theory, or understanding. Unlike quantitative meta-analysis, QES preserves the richness and context of qualitative data.</p>
+                    <p style="margin-top:12px"><strong>Key Approaches:</strong></p>
+                    <ul style="margin:8px 0 0 20px;font-size:13px">
+                        <li><strong>Thematic Synthesis:</strong> Identifies recurring themes across studies</li>
+                        <li><strong>Meta-ethnography:</strong> Translates concepts between studies to build new theory</li>
+                        <li><strong>Framework Synthesis:</strong> Uses pre-existing framework to organize findings</li>
+                        <li><strong>Critical Interpretive Synthesis:</strong> Questions assumptions and generates theory</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bootcamp-lesson" id="lesson-constructs" style="display:none">
+                <h3 style="color:var(--qes);margin-bottom:12px">Module 2: First, Second, and Third-Order Constructs (10 min)</h3>
+                <div style="background:var(--bg);padding:16px;border-radius:8px;margin-bottom:16px">
+                    <p><strong>Understanding Construct Levels</strong></p>
+                    <ul style="margin:8px 0 0 20px;font-size:13px">
+                        <li><strong>First-order constructs:</strong> Direct participant quotes - their words, experiences</li>
+                        <li><strong>Second-order constructs:</strong> Primary study authors' interpretations of participant data</li>
+                        <li><strong>Third-order constructs:</strong> Your synthesis team's interpretations - new insights from comparing across studies</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bootcamp-lesson" id="lesson-casp" style="display:none">
+                <h3 style="color:var(--qes);margin-bottom:12px">Module 3: Critical Appraisal with CASP/JBI (10 min)</h3>
+                <div style="background:var(--bg);padding:16px;border-radius:8px;margin-bottom:16px">
+                    <p><strong>CASP Qualitative Checklist</strong></p>
+                    <p style="margin:8px 0">10 questions covering: clear aims, appropriate methodology, research design, recruitment strategy, data collection, reflexivity, ethical issues, rigorous analysis, clear findings, value of research.</p>
+                </div>
+            </div>
+            <div class="bootcamp-lesson" id="lesson-cerqual" style="display:none">
+                <h3 style="color:var(--qes);margin-bottom:12px">Module 4: GRADE-CERQual (10 min)</h3>
+                <div style="background:var(--bg);padding:16px;border-radius:8px;margin-bottom:16px">
+                    <p><strong>Assessing Confidence in Qualitative Findings</strong></p>
+                    <p style="margin:8px 0">CERQual assesses confidence based on: Methodological limitations, Coherence, Adequacy of data, Relevance.</p>
+                </div>
+            </div>
+            <div class="bootcamp-lesson" id="lesson-entreq" style="display:none">
+                <h3 style="color:var(--qes);margin-bottom:12px">Module 5: ENTREQ Reporting (5 min)</h3>
+                <div style="background:var(--bg);padding:16px;border-radius:8px;margin-bottom:16px">
+                    <p><strong>Enhancing Transparency in Reporting QES</strong></p>
+                    <p style="margin:8px 0">21-item checklist covering: introduction, methods and methodology, literature search, study selection, appraisal, synthesis, and reflexivity.</p>
+                </div>
+            </div>
+            <div class="btn-row" style="justify-content:space-between;margin-top:20px">
+                <button class="download-btn" id="prevLessonBtn" onclick="prevLesson()" disabled>Prev</button>
+                <span id="lessonCounter" style="font-weight:600;color:var(--text-secondary)">1 / 5</span>
+                <button class="copy-btn" id="nextLessonBtn" onclick="nextLesson()">Next</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="onboarding" id="onboarding">
+    <div class="onboarding-card">
+        <div class="onboarding-header">
+            <div style="font-size:32px;margin-bottom:8px">&#128220;</div>
+            <h2 style="font-size:22px;margin-bottom:4px">META-SPRINT QES</h2>
+            <p style="opacity:0.9;font-size:14px">Qualitative Evidence Synthesis in 40 Days</p>
+        </div>
+        <div class="onboarding-body" id="step1">
+            <div style="text-align:center;margin-bottom:20px">
+                <div style="font-size:18px;font-weight:700;margin-bottom:8px">Eligibility Check</div>
+                <p style="color:var(--text-secondary);font-size:13px">All criteria must be met for QES workflow</p>
+            </div>
+            <div class="eligibility-list">
+                <div class="elig-item" onclick="toggleElig(this)">
+                    <div class="elig-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+                    <div><strong>Qualitative research question</strong> using PICo framework</div>
+                </div>
+                <div class="elig-item" onclick="toggleElig(this)">
+                    <div class="elig-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+                    <div><strong>Primary qualitative studies</strong> available (interviews, focus groups, ethnography)</div>
+                </div>
+                <div class="elig-item" onclick="toggleElig(this)">
+                    <div class="elig-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+                    <div><strong>Synthesis approach selected</strong> (thematic, framework, meta-ethnography)</div>
+                </div>
+                <div class="elig-item" onclick="toggleElig(this)">
+                    <div class="elig-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+                    <div><strong>Rich qualitative data</strong> expected (thick descriptions)</div>
+                </div>
+                <div class="elig-item" onclick="toggleElig(this)">
+                    <div class="elig-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+                    <div><strong>Team with qualitative expertise</strong> available</div>
+                </div>
+                <div class="elig-item" onclick="toggleElig(this)">
+                    <div class="elig-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+                    <div><strong>10-person team</strong> available (2h/day each)</div>
+                </div>
+            </div>
+            <button class="start-btn" id="nextBtn1" disabled onclick="goToStep2()">Continue</button>
+        </div>
+        <div id="step2" style="display:none">
+            <div class="onboarding-body">
+                <div style="text-align:center;margin-bottom:20px">
+                    <div style="font-size:18px;font-weight:700;margin-bottom:8px">Select Your Role</div>
+                    <p style="color:var(--text-secondary);font-size:13px">QES requires specialized roles</p>
+                </div>
+                <div class="role-grid">
+                    <button class="role-btn" onclick="selectRole(this, 'integrator')">
+                        <div class="role-icon">&#127919;</div>
+                        <div class="role-info"><div class="role-name">Integrator</div><div class="role-desc">Owns gates, timeline, audit pack, submission</div></div>
+                    </button>
+                    <button class="role-btn" onclick="selectRole(this, 'deputy')">
+                        <div class="role-icon">&#128203;</div>
+                        <div class="role-info"><div class="role-name">Deputy Integrator</div><div class="role-desc">Decision queue, backup synthesis lead</div></div>
+                    </button>
+                    <button class="role-btn" onclick="selectRole(this, 'search')">
+                        <div class="role-icon">&#128269;</div>
+                        <div class="role-info"><div class="role-name">Search Pod</div><div class="role-desc">2 people. Search, grey literature, saturation</div></div>
+                    </button>
+                    <button class="role-btn" onclick="selectRole(this, 'appraisal')">
+                        <div class="role-icon">&#9989;</div>
+                        <div class="role-info"><div class="role-name">Critical Appraisal Pod</div><div class="role-desc">2 people. CASP/JBI assessment</div></div>
+                    </button>
+                    <button class="role-btn" onclick="selectRole(this, 'synthesis')">
+                        <div class="role-icon">&#128221;</div>
+                        <div class="role-info"><div class="role-name">Synthesis Pod</div><div class="role-desc">3 people. Thematic coding, construct development</div></div>
+                    </button>
+                    <button class="role-btn" onclick="selectRole(this, 'write')">
+                        <div class="role-icon">&#9997;</div>
+                        <div class="role-info"><div class="role-name">Write Pod</div><div class="role-desc">1 person. ENTREQ, CERQual, manuscript</div></div>
+                    </button>
+                </div>
+                <button class="start-btn" id="startBtn" disabled onclick="startApp()">Start META-SPRINT QES</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+    <div class="freeze-banner hidden" id="freezeBanner">FREEZE DAY 34 - No new studies, themes, or frameworks</div>
+
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">META-SPRINT <span class="qes-badge">QES</span> <span>V1.0</span></div>
+            <div class="header-controls">
+                <div class="role-badge" id="roleBadge" tabindex="0" role="button" onclick="showRoleChange()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">Integrator</div>
+                <div class="day-control">
+                    <button class="day-btn" id="prevDayBtn" onclick="changeDay(-1)">&#8592;</button>
+                    <div>
+                        <div class="day-display" tabindex="0" role="button" onclick="showDayJump()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">Day <span id="dayNum">1</span>/40</div>
+                        <div class="day-hint">click to jump</div>
+                    </div>
+                    <button class="day-btn" id="nextDayBtn" onclick="changeDay(1)">&#8594;</button>
+                </div>
+                <button class="day-btn" onclick="toggleDarkMode()" id="darkModeBtn">&#127769;</button>
+                <button class="day-btn" onclick="openModal('settingsModal')">&#9881;</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="tabs" role="tablist">
+        <button class="tab active" role="tab" aria-selected="true" onclick="showPage('today', this)">Today</button>
+        <button class="tab" role="tab" aria-selected="false" onclick="showPage('timeline', this)">Timeline</button>
+        <button class="tab" role="tab" aria-selected="false" onclick="showPage('synthesis', this)">Synthesis</button>
+        <button class="tab" role="tab" aria-selected="false" onclick="showPage('dod', this)">Checkpoints (DoD)</button>
+        <button class="tab" role="tab" aria-selected="false" onclick="showPage('cerqual', this)">CERQual</button>
+        <button class="tab" role="tab" aria-selected="false" onclick="showPage('templates', this)">Templates</button>
+        <div class="tab-more-wrapper">
+            <button class="tab-more-btn" onclick="toggleMoreTabs(event)" aria-expanded="false" aria-haspopup="true" title="More pages">More ▾</button>
+            <div class="tab-more-dropdown" id="moreTabsDropdown" role="menu">
+                <button class="tab-more-item" data-page="stories" onclick="showPageFromMore('stories', this)" role="menuitem">Stories</button>
+                <button class="tab-more-item" data-page="reference" onclick="showPageFromMore('reference', this)" role="menuitem">Reference</button>
+                <button class="tab-more-item" data-page="glossary" onclick="showPageFromMore('glossary', this)" role="menuitem">Glossary</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- TODAY PAGE -->
+        <div class="page active" id="page-today" role="tabpanel">
+            <div class="health-dashboard" id="healthDashboard">
+                <div class="health-header">
+                    <div class="health-title">QES Project Health</div>
+                    <div class="health-score" id="healthScore">--</div>
+                </div>
+                <div class="health-grid">
+                    <div class="health-stat">
+                        <div class="health-stat-value" id="daysRemaining">40</div>
+                        <div class="health-stat-label">Days Left</div>
+                    </div>
+                    <div class="health-stat">
+                        <div class="health-stat-value" id="themeCount">0</div>
+                        <div class="health-stat-label">Themes</div>
+                    </div>
+                    <div class="health-stat" onclick="promptStudyCount()" style="cursor:pointer" title="Click to update">
+                        <div class="health-stat-value" id="studyCount">0</div>
+                        <div class="health-stat-label">Studies</div>
+                    </div>
+                    <div class="health-stat">
+                        <div class="health-stat-value" id="gatesPassed">0/5</div>
+                        <div class="health-stat-label">Gates</div>
+                    </div>
+                </div>
+                <div class="gate-dots">
+                    <div class="gate-dot" id="gateA" title="DoD-A-QES">A</div>
+                    <div class="gate-dot" id="gateB" title="DoD-B-QES">B</div>
+                    <div class="gate-dot" id="gateC" title="DoD-C-QES">C</div>
+                    <div class="gate-dot" id="gateD" title="DoD-D-QES">D</div>
+                    <div class="gate-dot" id="gateE" title="DoD-E-QES">E</div>
+                </div>
+            </div>
+
+            
+            <div class="risk-panel" id="riskPanel">
+                <div class="risk-header">
+                    <div class="risk-title">Project Risk</div>
+                    <div class="risk-badge low" id="riskStatusBadge" aria-live="polite">LOW</div>
+                </div>
+                <ul class="risk-list" id="riskList" aria-live="polite">
+                    <li class="risk-item">No active risks. Keep daily outputs on schedule.</li>
+                </ul>
+            </div>
+            <div id="deadlineAlerts"></div>
+
+            <div class="achievements-panel" id="achievementsPanel">
+                <div class="achievements-header">
+                    <div class="achievements-title">Achievements <span class="achievements-count" id="achieveCount">0/10</span></div>
+                    <button class="standup-btn" onclick="openStandupModal()">Generate Standup</button>
+                </div>
+                <div class="achievements-grid" id="achievementsGrid">
+                    <div class="achievement" id="ach-bootcamp" data-check="bootcamp">
+                        <div class="achievement-icon">&#127891;</div>
+                        <div class="achievement-name">Scholar</div>
+                        <div class="achievement-desc">Complete QES Bootcamp</div>
+                    </div>
+                    <div class="achievement" id="ach-protocol" data-check="dodA">
+                        <div class="achievement-icon">&#128274;</div>
+                        <div class="achievement-name">Protocol Locked</div>
+                        <div class="achievement-desc">Pass DoD-A-QES</div>
+                    </div>
+                    <div class="achievement" id="ach-themes" data-check="themes">
+                        <div class="achievement-icon">&#128209;</div>
+                        <div class="achievement-name">Theme Builder</div>
+                        <div class="achievement-desc">Develop 3+ themes</div>
+                    </div>
+                    <div class="achievement" id="ach-search" data-check="dodB">
+                        <div class="achievement-icon">&#128269;</div>
+                        <div class="achievement-name">Search Master</div>
+                        <div class="achievement-desc">Pass DoD-B-QES</div>
+                    </div>
+                    <div class="achievement" id="ach-extraction" data-check="dodC">
+                        <div class="achievement-icon">&#128203;</div>
+                        <div class="achievement-name">Data Extractor</div>
+                        <div class="achievement-desc">Pass DoD-C-QES</div>
+                    </div>
+                    <div class="achievement" id="ach-synthesis" data-check="dodD">
+                        <div class="achievement-icon">&#128218;</div>
+                        <div class="achievement-name">Synthesizer</div>
+                        <div class="achievement-desc">Pass DoD-D-QES</div>
+                    </div>
+                    <div class="achievement" id="ach-cerqual" data-check="cerqual">
+                        <div class="achievement-icon">&#11088;</div>
+                        <div class="achievement-name">Confidence Rated</div>
+                        <div class="achievement-desc">Complete CERQual</div>
+                    </div>
+                    <div class="achievement" id="ach-stories" data-check="stories">
+                        <div class="achievement-icon">&#128214;</div>
+                        <div class="achievement-name">Storyteller</div>
+                        <div class="achievement-desc">Read all 4 stories</div>
+                    </div>
+                    <div class="achievement" id="ach-submission" data-check="dodE">
+                        <div class="achievement-icon">&#127937;</div>
+                        <div class="achievement-name">Submission Ready</div>
+                        <div class="achievement-desc">Pass DoD-E-QES</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="standup-modal" id="standupModal" onclick="closeStandupModal(event)">
+                <div class="standup-card" onclick="event.stopPropagation()">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                        <div style="font-weight:700;font-size:16px">Daily Standup</div>
+                        <button onclick="closeStandupModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-muted)" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="standup-section">
+                        <div class="standup-label">Yesterday</div>
+                        <div class="standup-items" id="standupYesterday">Loading...</div>
+                    </div>
+                    <div class="standup-section">
+                        <div class="standup-label">Today</div>
+                        <div class="standup-items" id="standupToday">Loading...</div>
+                    </div>
+                    <div class="standup-section">
+                        <div class="standup-label">Blockers</div>
+                        <div class="standup-items" id="standupBlockers">Loading...</div>
+                    </div>
+                    <div class="standup-section" style="background:var(--qes-light)">
+                        <div class="standup-label" style="color:var(--qes)">Status</div>
+                        <div class="standup-items" id="standupStatus">Loading...</div>
+                    </div>
+                    <button class="standup-copy" onclick="copyStandup()">Copy to Clipboard</button>
+                </div>
+            </div>
+
+            <div class="bootcamp-card" id="bootcampCard">
+                <div class="bootcamp-title">QES Bootcamp (Day 1 - 45 min total)</div>
+                <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">Complete all modules before starting work</p>
+                <div class="bootcamp-modules">
+                    <div class="bootcamp-module" tabindex="0" onclick="toggleBootcamp(this, 'qes-fundamentals')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                        <div class="bootcamp-module-check">&#10003;</div>
+                        <div class="bootcamp-module-info">
+                            <div class="bootcamp-module-name">1. QES Fundamentals</div>
+                            <div class="bootcamp-module-time">10 min</div>
+                        </div>
+                    </div>
+                    <div class="bootcamp-module" tabindex="0" onclick="toggleBootcamp(this, 'constructs')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                        <div class="bootcamp-module-check">&#10003;</div>
+                        <div class="bootcamp-module-info">
+                            <div class="bootcamp-module-name">2. First, Second, Third-Order Constructs</div>
+                            <div class="bootcamp-module-time">10 min</div>
+                        </div>
+                    </div>
+                    <div class="bootcamp-module" tabindex="0" onclick="toggleBootcamp(this, 'casp')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                        <div class="bootcamp-module-check">&#10003;</div>
+                        <div class="bootcamp-module-info">
+                            <div class="bootcamp-module-name">3. Critical Appraisal (CASP/JBI)</div>
+                            <div class="bootcamp-module-time">10 min</div>
+                        </div>
+                    </div>
+                    <div class="bootcamp-module" tabindex="0" onclick="toggleBootcamp(this, 'cerqual')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                        <div class="bootcamp-module-check">&#10003;</div>
+                        <div class="bootcamp-module-info">
+                            <div class="bootcamp-module-name">4. GRADE-CERQual</div>
+                            <div class="bootcamp-module-time">10 min</div>
+                        </div>
+                    </div>
+                    <div class="bootcamp-module" tabindex="0" onclick="toggleBootcamp(this, 'entreq')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                        <div class="bootcamp-module-check">&#10003;</div>
+                        <div class="bootcamp-module-info">
+                            <div class="bootcamp-module-name">5. ENTREQ Reporting</div>
+                            <div class="bootcamp-module-time">5 min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info" id="todayGoal">
+                <div class="alert-icon">&#127919;</div>
+                <div class="alert-content">
+                    <div class="alert-title">Today's Goal</div>
+                    <div class="alert-text" id="goalText">Complete Bootcamp + Draft PICo Framework</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Your Tasks</div>
+                    <div class="phase-badge phase-a" id="phaseBadge">Protocol</div>
+                </div>
+                <div class="card-body" id="tasksContainer"></div>
+            </div>
+        </div>
+
+        <!-- SYNTHESIS PAGE -->
+        <div class="page" id="page-synthesis" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Synthesis Overview</div>
+                    <span class="qes-indicator">QES-SPECIFIC</span>
+                </div>
+                <div class="card-body">
+                    <h4 style="margin:16px 0 12px">Theme Dictionary</h4>
+                    <div class="form-row">
+                        <textarea class="form-textarea" id="themeDictionary" style="min-height:120px;font-family:'IBM Plex Mono',monospace;font-size:12px" placeholder="Theme 1: [Name] - [Description]&#10;Theme 2: [Name] - [Description]&#10;Theme 3: [Name] - [Description]"></textarea>
+                        <div class="form-hint">Lock at DoD-D-QES. Themes emerge from coding process.</div>
+                    </div>
+                    <button class="copy-btn" onclick="saveThemeDictionary()">Save Theme Dictionary</button>
+
+                    <h4 style="margin:24px 0 12px">Synthesis Approach</h4>
+                    <div class="form-row">
+                        <label class="form-label">Primary Synthesis Method</label>
+                        <select class="form-input" id="synthesisMethod">
+                            <option value="">Select...</option>
+                            <option value="thematic">Thematic Synthesis</option>
+                            <option value="framework">Framework Synthesis</option>
+                            <option value="meta-ethnography">Meta-ethnography</option>
+                            <option value="critical">Critical Interpretive Synthesis</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">Sampling Strategy</label>
+                        <select class="form-input" id="samplingStrategy">
+                            <option value="">Select...</option>
+                            <option value="comprehensive">Comprehensive (all eligible studies)</option>
+                            <option value="purposive">Purposive (maximum variation)</option>
+                            <option value="theoretical">Theoretical (theory-driven)</option>
+                        </select>
+                    </div>
+                    <button class="copy-btn" onclick="saveSynthesisApproach()">Save Synthesis Approach</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DOD GATES PAGE -->
+        <div class="page" id="page-dod" role="tabpanel">
+            <div class="alert alert-info">
+                <div class="alert-icon">&#128220;</div>
+                <div class="alert-content">
+                    <div class="alert-title">QES-Specific Checkpoints (DoD)</div>
+                    <div class="alert-text">All gates include QES requirements: PICo, synthesis approach, CASP/JBI, constructs, CERQual, ENTREQ</div>
+                </div>
+            </div>
+            <div id="dodContainer"></div>
+        </div>
+
+        <!-- CERQUAL PAGE -->
+        <div class="page" id="page-cerqual" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">GRADE-CERQual Assessment</div>
+                    <span class="qes-indicator">QES-SPECIFIC</span>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" style="margin-bottom:16px">
+                        <div class="alert-icon">&#9888;</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Required for DoD-E-QES</div>
+                            <div class="alert-text">Complete CERQual assessment for each review finding.</div>
+                        </div>
+                    </div>
+
+                    <div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:12px">
+                        <div style="font-weight:600;color:var(--qes);margin-bottom:8px">1. Methodological Limitations</div>
+                        <select class="form-input" id="cerqual-methods" style="font-size:11px">
+                            <option value="">Rate...</option>
+                            <option value="none">No or very minor concerns</option>
+                            <option value="minor">Minor concerns</option>
+                            <option value="moderate">Moderate concerns</option>
+                            <option value="serious">Serious concerns</option>
+                        </select>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Based on CASP/JBI appraisal of contributing studies</div>
+                    </div>
+
+                    <div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:12px">
+                        <div style="font-weight:600;color:var(--qes);margin-bottom:8px">2. Coherence</div>
+                        <select class="form-input" id="cerqual-coherence" style="font-size:11px">
+                            <option value="">Rate...</option>
+                            <option value="none">No or very minor concerns</option>
+                            <option value="minor">Minor concerns</option>
+                            <option value="moderate">Moderate concerns</option>
+                            <option value="serious">Serious concerns</option>
+                        </select>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">How well does the finding fit the underlying data?</div>
+                    </div>
+
+                    <div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:12px">
+                        <div style="font-weight:600;color:var(--qes);margin-bottom:8px">3. Adequacy of Data</div>
+                        <select class="form-input" id="cerqual-adequacy" style="font-size:11px">
+                            <option value="">Rate...</option>
+                            <option value="none">No or very minor concerns</option>
+                            <option value="minor">Minor concerns</option>
+                            <option value="moderate">Moderate concerns</option>
+                            <option value="serious">Serious concerns</option>
+                        </select>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Richness and quantity of supporting data</div>
+                    </div>
+
+                    <div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:12px">
+                        <div style="font-weight:600;color:var(--qes);margin-bottom:8px">4. Relevance</div>
+                        <select class="form-input" id="cerqual-relevance" style="font-size:11px">
+                            <option value="">Rate...</option>
+                            <option value="none">No or very minor concerns</option>
+                            <option value="minor">Minor concerns</option>
+                            <option value="moderate">Moderate concerns</option>
+                            <option value="serious">Serious concerns</option>
+                        </select>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">How applicable to review question context?</div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">Overall CERQual Assessment</label>
+                        <select class="form-input" id="cerqual-overall">
+                            <option value="">Calculate from domains...</option>
+                            <option value="high">High confidence</option>
+                            <option value="moderate">Moderate confidence</option>
+                            <option value="low">Low confidence</option>
+                            <option value="verylow">Very low confidence</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">Explanation</label>
+                        <textarea class="form-textarea" id="cerqual-explanation" placeholder="Explain overall rating and key concerns..."></textarea>
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="copy-btn" onclick="saveCERQual()">Save CERQual Assessment</button>
+                        <button class="download-btn" onclick="generateCERQualReport()">Generate Report</button>
+                    </div>
+                    <div class="template-output" id="cerqual-output"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIMELINE PAGE -->
+        <div class="page" id="page-timeline" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><div class="card-title">40-Day QES Timeline</div></div>
+                <div class="card-body">
+                    <div class="timeline-bar" role="progressbar" aria-valuemin="0" aria-valuemax="40" aria-valuenow="1" aria-label="Sprint progress" id="timelineBar"><div class="timeline-fill" id="timelineFill" style="width:0%"></div></div>
+                    <div class="timeline-markers">
+                        <div class="timeline-marker">D4<br>DoD-A</div>
+                        <div class="timeline-marker">D12<br>DoD-B</div>
+                        <div class="timeline-marker">D20<br>Audit1</div>
+                        <div class="timeline-marker">D28<br>DoD-C</div>
+                        <div class="timeline-marker">D34<br>DoD-D</div>
+                        <div class="timeline-marker">D34<br>Freeze</div>
+                        <div class="timeline-marker">D40<br>Submit</div>
+                    </div>
+                    <table class="ref-table" style="margin-top:24px">
+                        <thead><tr><th>Phase</th><th>Days</th><th>Key Deliverables</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>DoD-A-QES</strong></td><td>1-4</td><td>Protocol + PICo + Synthesis approach locked</td></tr>
+                            <tr><td><strong>DoD-B-QES</strong></td><td>6-12</td><td>Search complete + Saturation monitoring in place</td></tr>
+                            <tr><td><strong>DoD-C-QES</strong></td><td>12-28</td><td>Extraction + CASP/JBI complete</td></tr>
+                            <tr><td><strong>DoD-D-QES</strong></td><td>24-34</td><td>Synthesis + Third-order constructs + Framework</td></tr>
+                            <tr><td><strong>DoD-E-QES</strong></td><td>34-40</td><td>ENTREQ + CERQual + Submission</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- STORIES PAGE -->
+        <div class="page" id="page-stories" role="tabpanel">
+            <div class="alert alert-info" style="margin-bottom:20px">
+                <div class="alert-icon">&#128214;</div>
+                <div class="alert-content">
+                    <div class="alert-title">Evidence Reversal Stories</div>
+                    <div class="alert-text">Learn from cases where proper QES methodology revealed the truth - or where ignoring it led to harm.</div>
+                </div>
+            </div>
+
+            <!-- STORY 1 -->
+            <div class="story-card">
+                <div class="story-header" tabindex="0" role="button" aria-expanded="false" onclick="toggleStory(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                    <div class="story-number">Story One</div>
+                    <div class="story-title">The Thin Description Trap</div>
+                    <div class="story-hook">"We synthesized 50 studies!" But were they saying anything meaningful?</div>
+                </div>
+                <div class="story-body">
+                    <div class="story-scene">
+                        <div class="scene-label">The Beginning</div>
+                        <div class="scene-content">
+                            <p>A QES team proudly reported synthesizing 50 qualitative studies on patient experience. The review was published in a high-impact journal. Policy makers cited it to justify major service changes.</p>
+                        </div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="scene-label">The Question You Must Ask</div>
+                        <div class="story-question">Did the included studies provide rich, thick descriptions? Or were they superficial surveys dressed up as qualitative research?</div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="scene-label">The Hidden Truth</div>
+                        <div class="scene-content">
+                            <p>A critical re-appraisal revealed: 35 of 50 studies were brief telephone interviews with minimal depth. Only 8 studies had true thick description. The synthesis built on thin foundations produced shallow conclusions that missed the nuanced reality of patient experience.</p>
+                        </div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="story-moral">
+                            <div class="moral-label">The Lesson</div>
+                            <div class="moral-text">Quantity cannot replace quality in QES. Thick description matters. Assess adequacy of data, not just number of studies.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STORY 2 -->
+            <div class="story-card">
+                <div class="story-header" tabindex="0" role="button" aria-expanded="false" onclick="toggleStory(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                    <div class="story-number">Story Two</div>
+                    <div class="story-title">The Missing Context</div>
+                    <div class="story-hook">"These themes apply universally!" But do they?</div>
+                </div>
+                <div class="story-body">
+                    <div class="story-scene">
+                        <div class="scene-label">The Beginning</div>
+                        <div class="scene-content">
+                            <p>A synthesis of barriers to medication adherence identified "forgetfulness" as the top theme. Guidelines worldwide recommended reminder apps. Implementation was widespread.</p>
+                        </div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="scene-label">The Question You Must Ask</div>
+                        <div class="story-question">Were the contexts of included studies appropriate for the settings where findings were applied?</div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="scene-label">The Hidden Truth</div>
+                        <div class="scene-content">
+                            <p>All 20 studies were from wealthy Western countries. When applied in low-resource settings, the real barriers were cost, access, and competing priorities - not forgetfulness. The reminder apps were useless.</p>
+                        </div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="story-moral">
+                            <div class="moral-label">The Lesson</div>
+                            <div class="moral-text">Context is everything in qualitative research. Assess relevance. Synthesized findings may not transfer across settings.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STORY 3 -->
+            <div class="story-card">
+                <div class="story-header" tabindex="0" role="button" aria-expanded="false" onclick="toggleStory(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                    <div class="story-number">Story Three</div>
+                    <div class="story-title">The Aggregation Error</div>
+                    <div class="story-hook">"More themes means more comprehensive!" But does it?</div>
+                </div>
+                <div class="story-body">
+                    <div class="story-scene">
+                        <div class="scene-label">The Beginning</div>
+                        <div class="scene-content">
+                            <p>A QES team aggregated findings like a quantitative review, listing 47 "themes" across studies. The sheer volume seemed impressive. Reviewers praised the thoroughness.</p>
+                        </div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="scene-label">The Question You Must Ask</div>
+                        <div class="story-question">Did the synthesis interpret and translate concepts, or just aggregate and list them?</div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="scene-label">The Hidden Truth</div>
+                        <div class="scene-content">
+                            <p>No interpretation occurred. Different words for the same concept were counted separately. No third-order constructs were developed. The "synthesis" was actually just an inventory with no new insight.</p>
+                        </div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="story-moral">
+                            <div class="moral-label">The Lesson</div>
+                            <div class="moral-text">QES is interpretive synthesis, not quantitative aggregation. Translate concepts. Build theory. Create new understanding.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STORY 4 -->
+            <div class="story-card">
+                <div class="story-header" tabindex="0" role="button" aria-expanded="false" onclick="toggleStory(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                    <div class="story-number">Story Four</div>
+                    <div class="story-title">The Silenced Voices</div>
+                    <div class="story-hook">"We captured diverse perspectives!" But whose voices were actually heard?</div>
+                </div>
+                <div class="story-body">
+                    <div class="story-scene">
+                        <div class="scene-label">The Beginning</div>
+                        <div class="scene-content">
+                            <p>A synthesis on healthcare access claimed to represent "patient voices." It informed national policy on service design. Vulnerable groups were mentioned in recommendations.</p>
+                        </div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="scene-label">The Question You Must Ask</div>
+                        <div class="story-question">Did the sampling strategy ensure marginalized perspectives were included? Were some voices systematically excluded?</div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="scene-label">The Hidden Truth</div>
+                        <div class="scene-content">
+                            <p>All included studies recruited through mainstream healthcare. Those who never accessed services were invisible. Homeless individuals, undocumented migrants, and those with severe mental illness were absent. Policy based on these findings made access worse for the most vulnerable.</p>
+                        </div>
+                    </div>
+                    <div class="story-scene">
+                        <div class="story-moral">
+                            <div class="moral-label">The Lesson</div>
+                            <div class="moral-text">Sampling matters in QES. Purposive sampling should seek maximum variation. Consider whose voices are missing and why.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TEMPLATES PAGE -->
+        <div class="page" id="page-templates" role="tabpanel">
+            <div class="alert alert-info">
+                <div class="alert-icon">&#128221;</div>
+                <div class="alert-content">
+                    <div class="alert-title">QES Templates</div>
+                    <div class="alert-text">Templates marked with QES are specific to qualitative evidence synthesis</div>
+                </div>
+            </div>
+
+            <div class="template-card">
+                <div class="template-header" tabindex="0" role="button" aria-expanded="false" onclick="toggleTemplate(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                    <div class="template-name">PICo Framework <span class="template-badge badge-qes">QES</span></div>
+                    <span>+</span>
+                </div>
+                <div class="template-body">
+                    <div class="form-row">
+                        <label class="form-label">Population</label>
+                        <input type="text" class="form-input" id="pico-p" placeholder="e.g., Adults with chronic pain">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">Phenomenon of Interest</label>
+                        <input type="text" class="form-input" id="pico-i" placeholder="e.g., Experience of self-management">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">Context</label>
+                        <input type="text" class="form-input" id="pico-co" placeholder="e.g., Primary care settings in high-income countries">
+                    </div>
+                    <button class="copy-btn" onclick="generatePICo()">Generate PICo</button>
+                    <div class="template-output" id="pico-output"></div>
+                </div>
+            </div>
+
+            <div class="template-card">
+                <div class="template-header" tabindex="0" role="button" aria-expanded="false" onclick="toggleTemplate(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+                    <div class="template-name">Summary of Qualitative Findings Table <span class="template-badge badge-qes">QES</span></div>
+                    <span>+</span>
+                </div>
+                <div class="template-body">
+                    <div class="form-row">
+                        <label class="form-label">Finding Statement</label>
+                        <textarea class="form-textarea" id="soqf-finding" placeholder="Clear statement of the finding..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">Contributing Studies</label>
+                        <input type="text" class="form-input" id="soqf-studies" placeholder="e.g., Smith 2020, Jones 2019, Lee 2021">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">CERQual Assessment</label>
+                        <select class="form-input" id="soqf-cerqual">
+                            <option value="">Select...</option>
+                            <option value="high">High confidence</option>
+                            <option value="moderate">Moderate confidence</option>
+                            <option value="low">Low confidence</option>
+                            <option value="verylow">Very low confidence</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">Explanation of CERQual</label>
+                        <textarea class="form-textarea" id="soqf-explanation" placeholder="Reasons for confidence rating..."></textarea>
+                    </div>
+                    <button class="copy-btn" onclick="generateSOQF()">Generate SoQF Entry</button>
+                    <div class="template-output" id="soqf-output"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REFERENCE PAGE -->
+        <div class="page" id="page-reference" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><div class="card-title">QES-Specific Concepts</div></div>
+                <div class="card-body">
+                    <h4 style="margin-bottom:12px">CASP Qualitative Checklist Domains</h4>
+                    <table class="ref-table">
+                        <thead><tr><th>Domain</th><th>Key Question</th></tr></thead>
+                        <tbody>
+                            <tr><td>Clear aims</td><td>Was there a clear statement of research aims?</td></tr>
+                            <tr><td>Methodology</td><td>Is qualitative methodology appropriate?</td></tr>
+                            <tr><td>Research design</td><td>Was the research design appropriate?</td></tr>
+                            <tr><td>Recruitment</td><td>Was the recruitment strategy appropriate?</td></tr>
+                            <tr><td>Data collection</td><td>Was data collected appropriately?</td></tr>
+                            <tr><td>Reflexivity</td><td>Has researcher-participant relationship been considered?</td></tr>
+                            <tr><td>Ethics</td><td>Have ethical issues been considered?</td></tr>
+                            <tr><td>Analysis</td><td>Was data analysis sufficiently rigorous?</td></tr>
+                            <tr><td>Findings</td><td>Is there a clear statement of findings?</td></tr>
+                            <tr><td>Value</td><td>How valuable is the research?</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- GLOSSARY PAGE -->
+        <div class="page" id="page-glossary" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><div class="card-title">QES Glossary</div></div>
+                <div class="card-body" id="glossaryContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal" id="settingsModal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-title">Settings</div>
+            <button class="modal-close" aria-label="Close" onclick="closeModal('settingsModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <label class="form-label">Project Name</label>
+                <input type="text" class="form-input" id="projectNameInput" placeholder="My QES Project">
+            </div>
+            <div class="btn-row" style="margin-top:16px">
+                <button class="copy-btn" onclick="exportData()">Export Data</button>
+                <button class="download-btn" onclick="resetData()">Reset All</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let state = {
+    day: 1,
+    role: '',
+    bootcamp: {},
+    themeDictionary: '',
+    synthesisApproach: {},
+    cerqual: {},
+    tasks: {},
+    taskAssignees: {},
+    dodChecked: {},
+    dodGates: { A: false, B: false, C: false, D: false, E: false },
+    themeCount: 0,
+    studyCount: 0,
+    storiesRead: {}
+};
+
+const ROLE_NAMES = {
+    integrator: 'Integrator',
+    deputy: 'Deputy',
+    search: 'Search Pod',
+    appraisal: 'Appraisal Pod',
+    synthesis: 'Synthesis Pod',
+    write: 'Write Pod'
+};
+
+const PHASES = [
+    { id: 'A', name: 'Protocol Lock', days: [1, 4], cls: 'phase-a' },
+    { id: 'B', name: 'Search Lock', days: [6, 12], cls: 'phase-b' },
+    { id: 'C', name: 'Extraction Lock', days: [12, 28], cls: 'phase-c' },
+    { id: 'D', name: 'Synthesis Lock', days: [24, 34], cls: 'phase-d' },
+    { id: 'E', name: 'Submission Lock', days: [34, 40], cls: 'phase-e' }
+];
+
+const DOD_CHECKLISTS = {
+    A: [
+        { id: 'a1', text: 'Review question using PICo (Population, phenomenon of Interest, Context)' },
+        { id: 'a2', text: 'Synthesis approach selected (thematic, framework, meta-ethnography)' },
+        { id: 'a3', text: 'Sampling strategy defined (purposive, theoretical, comprehensive)' },
+        { id: 'a4', text: 'Qualitative critical appraisal tool selected (CASP, JBI)' },
+        { id: 'a5', text: 'Reflexivity statement from review team' },
+        { id: 'a6', text: 'Data extraction approach (verbatim quotes, author interpretations, or both)' }
+    ],
+    B: [
+        { id: 'b1', text: 'Qualitative databases searched (CINAHL, PsycINFO, Sociological Abstracts)' },
+        { id: 'b2', text: 'Reference list and citation searching complete' },
+        { id: 'b3', text: 'Saturation monitoring strategy in place' },
+        { id: 'b4', text: 'Grey literature and dissertations searched' }
+    ],
+    C: [
+        { id: 'c1', text: 'Study characteristics extracted (methodology, setting, participants)' },
+        { id: 'c2', text: 'First-order constructs (participant quotes) extracted' },
+        { id: 'c3', text: 'Second-order constructs (author interpretations) extracted' },
+        { id: 'c4', text: 'CASP/JBI critical appraisal complete for all studies' },
+        { id: 'c5', text: 'Thick vs thin descriptions noted' }
+    ],
+    D: [
+        { id: 'd1', text: 'Thematic synthesis / framework analysis complete' },
+        { id: 'd2', text: 'Third-order constructs (reviewer interpretations) developed' },
+        { id: 'd3', text: 'Line-of-argument synthesis or refutational synthesis (if meta-ethnography)' },
+        { id: 'd4', text: 'Sensitivity by methodological quality complete' },
+        { id: 'd5', text: 'Conceptual model or framework generated' }
+    ],
+    E: [
+        { id: 'e1', text: 'ENTREQ checklist complete (Enhancing Transparency in Reporting QES)' },
+        { id: 'e2', text: 'GRADE-CERQual assessment complete for each finding' },
+        { id: 'e3', text: 'Summary of qualitative findings table' },
+        { id: 'e4', text: 'Reflexivity and limitations addressed' }
+    ]
+};
+
+const GLOSSARY = [
+    { term: 'Qualitative Evidence Synthesis', plain: 'Integration of findings from multiple qualitative studies to create new understanding, not just aggregation of results.', technical: 'Interpretive approach to synthesizing qualitative research, including methods like thematic synthesis and meta-ethnography.' },
+    { term: 'Meta-ethnography', plain: 'Method that translates concepts between studies to build new theory. Goes beyond description to interpretation.', technical: 'Noblit and Hare approach using reciprocal translation, refutational synthesis, and lines-of-argument synthesis.' },
+    { term: 'Thematic Synthesis', plain: 'Identifies recurring themes across studies through systematic coding. Accessible method for QES beginners.', technical: 'Thomas and Harden method: line-by-line coding, descriptive themes, analytical themes.' },
+    { term: 'Framework Synthesis', plain: 'Uses existing theory or framework to organize and interpret findings from multiple studies.', technical: 'Deductive approach applying pre-existing conceptual framework, can be combined with inductive elements.' },
+    { term: 'GRADE-CERQual', plain: 'System for assessing how much confidence to place in qualitative review findings. Similar concept to GRADE for quantitative.', technical: 'Confidence in Evidence from Reviews of Qualitative research. Four components: methodological limitations, coherence, adequacy, relevance.' },
+    { term: 'First-order Constructs', plain: 'Direct quotes from participants in primary studies - their actual words describing their experience.', technical: 'Raw participant data as reported in primary studies. Preserved verbatim in extraction.' },
+    { term: 'Second-order Constructs', plain: 'Primary study authors interpretations of what participants said and meant.', technical: 'Author interpretations, themes, and analytical findings from original qualitative studies.' },
+    { term: 'Third-order Constructs', plain: 'Your synthesis teams new interpretations - insights that emerge from comparing across studies.', technical: 'Reviewer-generated interpretations, new theory, or conceptual models developed through synthesis process.' },
+    { term: 'Lines-of-argument Synthesis', plain: 'Building a new interpretation or theory by seeing how studies relate and what they collectively say.', technical: 'Meta-ethnography technique creating new conceptual understanding from synthesis of multiple studies.' },
+    { term: 'Refutational Synthesis', plain: 'When studies contradict each other, exploring why and what that tells us.', technical: 'Meta-ethnography technique for handling contradictory findings between studies.' },
+    { term: 'CASP', plain: 'Critical Appraisal Skills Programme - 10 questions to assess quality of qualitative studies.', technical: 'Widely used qualitative appraisal tool covering aims, methodology, design, recruitment, data collection, reflexivity, ethics, analysis, findings, value.' },
+    { term: 'PICo', plain: 'Framework for qualitative review questions: Population, phenomenon of Interest, Context.', technical: 'Alternative to PICO for qualitative questions. Context replaces comparison and outcome.' },
+    { term: 'ENTREQ', plain: 'Reporting guideline for qualitative evidence synthesis - 21 items to ensure transparent reporting.', technical: 'Enhancing Transparency in Reporting the synthesis of Qualitative research statement.' },
+    { term: 'Thick Description', plain: 'Rich, detailed accounts that include context, meaning, and interpretation - not just surface facts.', technical: 'Geertz concept. Data with depth that allows readers to assess transferability. Contrast with thin description.' },
+    { term: 'Theoretical Saturation', plain: 'Point where additional studies add no new concepts or themes - synthesis is complete.', technical: 'Sampling continues until no new themes emerge. Signals adequacy in purposive sampling.' },
+    { term: 'Purposive Sampling', plain: 'Deliberately selecting studies to maximize variation in perspectives, settings, or populations.', technical: 'Non-random sampling strategy seeking maximum variation or information-rich cases.' },
+    { term: 'Reflexivity', plain: 'Acknowledging how your own background, assumptions, and position might influence the synthesis.', technical: 'Critical self-reflection on researcher influence. Essential in qualitative research and synthesis.' }
+];
+
+const DAILY_GOALS = {
+    1: 'Complete Bootcamp + Draft PICo Framework',
+    2: 'Finalize PICo + Select synthesis approach',
+    3: 'Lock appraisal tool + Draft reflexivity statement',
+    4: 'Sign off DoD-A-QES',
+    6: 'Execute database searches',
+    10: 'Complete screening + Saturation check',
+    12: 'Sign off DoD-B-QES',
+    18: 'Audit 1 begins',
+    20: 'Audit 1 complete',
+    28: 'Sign off DoD-C-QES',
+    30: 'Complete thematic coding + Begin synthesis',
+    32: 'Audit 2 begins',
+    33: 'Audit 2 complete',
+    34: 'Sign off DoD-D-QES + FREEZE',
+    40: 'Submit! DoD-E-QES complete'
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadState();
+    if (state.role) {
+        document.getElementById('onboarding').classList.add('hidden');
+        document.getElementById('app').style.display = 'block';
+        render();
+    }
+    loadDarkMode();
+});
+
+function loadState() {
+    var saved = localStorage.getItem('metasprint-qes');
+    if (saved) {
+        try {
+            var data = JSON.parse(saved);
+            delete data.__proto__; delete data.constructor; delete data.prototype;
+            state = Object.assign({}, state, data);
+        } catch(e) {}
+    }
+}
+
+function save() {
+    try { localStorage.setItem('metasprint-qes', JSON.stringify(state)); }
+    catch(e) { if (e.name === 'QuotaExceededError') showToast('Storage full — export your data', 'error'); }
+}
+
+function toggleElig(el) {
+    el.classList.toggle('checked');
+    var allChecked = document.querySelectorAll('.elig-item.checked').length === document.querySelectorAll('.elig-item').length;
+    document.getElementById('nextBtn1').disabled = !allChecked;
+}
+
+function goToStep2() {
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+}
+
+function selectRole(el, role) {
+    document.querySelectorAll('.role-btn').forEach(function(b) { b.classList.remove('selected'); });
+    el.classList.add('selected');
+    state.role = role;
+    document.getElementById('startBtn').disabled = false;
+}
+
+function startApp() {
+    save();
+    document.getElementById('onboarding').classList.add('hidden');
+    document.getElementById('app').style.display = 'block';
+    render();
+}
+
+function showRoleChange() {
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    document.getElementById('onboarding').classList.remove('hidden');
+}
+
+function buildRiskState() {
+    var d = state.day;
+    var gates = state.dodGates || {};
+    var studyCount = state.studyCount ?? 0;
+    var daysToFreeze = Math.max(0, 34 - d);
+    var risks = [];
+    var points = 0;
+    var gateDeadlines = { A: 4, B: 12, C: 28, D: 34, E: 40 };
+
+    ['A', 'B', 'C', 'D', 'E'].forEach(function(gate) {
+        var deadline = gateDeadlines[gate];
+        if (d > deadline && !gates[gate]) {
+            var overdue = d - deadline;
+            risks.push({ level: 'high', text: 'DoD-' + gate + ' overdue by ' + overdue + ' day(s).' });
+            points += 3;
+        }
+    });
+
+    if (d < 34 && daysToFreeze <= 3 && !gates.D) {
+        risks.push({ level: 'medium', text: 'Freeze in ' + daysToFreeze + ' day(s), but DoD-D is not signed off.' });
+        points += 2;
+    }
+
+    if (studyCount > 0 && (studyCount < 40 || studyCount > 60)) {
+        risks.push({ level: 'medium', text: 'Study count ' + studyCount + ' is outside target range (40-60).' });
+        points += 1;
+    } else if (d > 12 && studyCount === 0) {
+        risks.push({ level: 'medium', text: 'Study count is still zero after Day 12. Verify PRISMA and extraction logs.' });
+        points += 1;
+    }
+
+    var level = 'low';
+    if (points >= 4) level = 'high';
+    else if (points >= 2) level = 'medium';
+
+    if (risks.length === 0) {
+        risks.push({ level: 'low', text: 'No active risks. Keep daily outputs on schedule.' });
+    }
+
+    return { level: level, items: risks };
+}
+
+function renderRiskPanel() {
+    var badge = document.getElementById('riskStatusBadge');
+    var list = document.getElementById('riskList');
+    if (!badge || !list) return;
+
+    var risk = buildRiskState();
+    badge.className = 'risk-badge ' + risk.level;
+    badge.textContent = risk.level.toUpperCase();
+
+    var html = '';
+    risk.items.forEach(function(item) {
+        var cls = 'risk-item';
+        if (item.level === 'high') cls += ' high';
+        else if (item.level === 'medium') cls += ' medium';
+        html += '<li class="' + cls + '">' + escapeHtml(item.text) + '</li>';
+    });
+    list.innerHTML = html;
+}
+
+function render() {
+    var d = state.day;
+    document.getElementById('dayNum').textContent = d;
+    document.getElementById('prevDayBtn').disabled = d <= 1;
+    document.getElementById('nextDayBtn').disabled = d >= 40;
+    document.getElementById('roleBadge').textContent = ROLE_NAMES[state.role] || state.role;
+    document.getElementById('freezeBanner').classList.toggle('hidden', d < 34);
+    document.getElementById('timelineFill').style.width = ((d / 40) * 100) + '%';
+    var timelineBar = document.getElementById('timelineBar');
+    if (timelineBar) timelineBar.setAttribute('aria-valuenow', d);
+
+    var phase = PHASES.find(function(p) { return d >= p.days[0] && d <= p.days[1]; }) || PHASES[0];
+    var badge = document.getElementById('phaseBadge');
+    badge.textContent = phase.name;
+    badge.className = 'phase-badge ' + phase.cls;
+
+    document.getElementById('daysRemaining').textContent = 40 - d;
+    document.getElementById('themeCount').textContent = state.themeCount ?? 0;
+    document.getElementById('studyCount').textContent = state.studyCount ?? 0;
+    var gatesPassed = ['A','B','C','D','E'].filter(function(g) { return state.dodGates[g]; }).length;
+    document.getElementById('gatesPassed').textContent = gatesPassed + '/5';
+
+    ['A','B','C','D','E'].forEach(function(g) {
+        var dot = document.getElementById('gate' + g);
+        dot.classList.remove('passed', 'current');
+        if (state.dodGates[g]) dot.classList.add('passed');
+    });
+
+    var score = 100;
+    if (d > 4 && !state.dodGates.A) score -= 20;
+    if (d > 12 && !state.dodGates.B) score -= 20;
+    if (d > 28 && !state.dodGates.C) score -= 20;
+    if (d > 34 && !state.dodGates.D) score -= 20;
+    score = Math.max(0, score);
+    var scoreEl = document.getElementById('healthScore');
+    scoreEl.textContent = score + '%';
+    scoreEl.className = 'health-score ' + (score >= 80 ? 'good' : score >= 50 ? 'warning' : 'danger');
+
+    renderRiskPanel();
+
+    document.getElementById('bootcampCard').style.display = d <= 2 ? 'block' : 'none';
+
+    var goal = DAILY_GOALS[d] || 'Continue current phase tasks';
+    document.getElementById('goalText').textContent = goal;
+
+    renderTasks();
+    renderDoD();
+    renderGlossary();
+    renderDeadlineAlerts();
+}
+
+function renderTasks() {
+    var d = state.day;
+    var tasks = [];
+
+    if (d <= 4) {
+        tasks = [
+            { text: 'Complete QES Bootcamp', owner: 'All' },
+            { text: 'Define PICo framework', owner: 'Integrator' },
+            { text: 'Select synthesis approach', owner: 'Synthesis' }
+        ];
+    } else if (d <= 12) {
+        tasks = [
+            { text: 'Execute database searches', owner: 'Search' },
+            { text: 'Search grey literature', owner: 'Search' },
+            { text: 'Monitor saturation', owner: 'Synthesis' }
+        ];
+    } else if (d <= 28) {
+        tasks = [
+            { text: 'Extract study characteristics', owner: 'Appraisal' },
+            { text: 'Extract first/second-order constructs', owner: 'Synthesis' },
+            { text: 'Complete CASP/JBI appraisal', owner: 'Appraisal' }
+        ];
+    } else if (d <= 34) {
+        tasks = [
+            { text: 'Complete thematic synthesis', owner: 'Synthesis' },
+            { text: 'Develop third-order constructs', owner: 'Synthesis' },
+            { text: 'Build conceptual framework', owner: 'Synthesis' }
+        ];
+    } else {
+        tasks = [
+            { text: 'Complete ENTREQ checklist', owner: 'Write' },
+            { text: 'Complete CERQual assessment', owner: 'Write' },
+            { text: 'Finalize manuscript', owner: 'Integrator' }
+        ];
+    }
+
+    var html = '';
+    tasks.forEach(function(task, i) {
+        var key = d + '-' + i;
+        var checked = state.tasks[key];
+        var assignee = (state.taskAssignees && state.taskAssignees[key]) || task.owner || '';
+        var safeAssignee = escapeHtml(assignee);
+        html += '<div class="checklist-item ' + (checked ? 'checked' : '') + '">' +
+            '<div class="check-box" onclick="toggleTask(\'' + key + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+            '<div class="checklist-content" onclick="toggleTask(\'' + key + '\')">' +
+            '<div class="checklist-title">' + task.text + '</div></div>' +
+            '<input type="text" value="' + safeAssignee + '" placeholder="Owner" onclick="event.stopPropagation()" onchange="setTaskAssignee(\'' + key + '\', this.value)" style="width:70px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center;background:var(--bg)">' +
+            '</div>';
+    });
+    document.getElementById('tasksContainer').innerHTML = html;
+}
+
+function setTaskAssignee(key, value) {
+    if (!state.taskAssignees) state.taskAssignees = {};
+    state.taskAssignees[key] = value;
+    save();
+    showToast('Assignee updated');
+}
+
+function toggleTask(key) {
+    state.tasks[key] = !state.tasks[key];
+    save();
+    renderTasks();
+    showToast('Saved');
+}
+
+function renderDoD() {
+    var html = '';
+    PHASES.forEach(function(phase) {
+        var items = DOD_CHECKLISTS[phase.id] || [];
+        var checkedCount = items.filter(function(item) { return state.dodChecked[item.id]; }).length;
+        var allChecked = checkedCount === items.length;
+        var passed = state.dodGates[phase.id];
+
+        var statusText = passed ? 'PASSED' : allChecked ? 'Ready' : checkedCount + '/' + items.length;
+        var statusClass = passed ? 'gate-passed' : allChecked ? 'gate-ready' : 'gate-pending';
+
+        html += '<div class="dod-section"><div class="dod-header ' + phase.cls + '">' +
+            '<div class="dod-title">DoD-' + phase.id + '-QES: ' + phase.name + '</div>' +
+            '<div class="dod-gate-status ' + statusClass + '">' + statusText + '</div></div>';
+
+        items.forEach(function(item) {
+            var checked = state.dodChecked[item.id];
+            html += '<div class="checklist-item ' + (checked ? 'checked' : '') + '" onclick="toggleDoD(\'' + item.id + '\')">' +
+                '<div class="check-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+                '<div class="checklist-content"><div class="checklist-title">' + escapeHtml(item.text) + '</div></div></div>';
+        });
+
+        if (allChecked && !passed) {
+            html += '<button class="copy-btn" style="width:100%;margin-top:12px" onclick="signOffGate(\'' + phase.id + '\')">Sign Off DoD-' + phase.id + '-QES</button>';
+        }
+        html += '</div>';
+    });
+    document.getElementById('dodContainer').innerHTML = html;
+}
+
+function toggleDoD(id) {
+    state.dodChecked[id] = !state.dodChecked[id];
+    save();
+    renderDoD();
+    showToast('Saved');
+}
+
+function signOffGate(gateId) {
+    if (!confirm('Sign off DoD-' + gateId + '-QES? This confirms all checklist items are complete.')) return;
+    state.dodGates[gateId] = true;
+    save();
+    render();
+    showToast('DoD-' + gateId + '-QES PASSED!');
+    launchConfetti();
+}
+
+function renderGlossary() {
+    var html = '';
+    GLOSSARY.forEach(function(item) {
+        html += '<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">' +
+            '<div style="font-weight:700;color:var(--qes)">' + escapeHtml(item.term) + '</div>' +
+            '<div style="margin-top:4px">' + escapeHtml(item.plain) + '</div>' +
+            '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;font-style:italic">' + escapeHtml(item.technical) + '</div></div>';
+    });
+    document.getElementById('glossaryContent').innerHTML = html;
+}
+
+function renderDeadlineAlerts() {
+    var d = state.day;
+    var alerts = [];
+
+    if (d <= 4 && !state.dodGates.A) {
+        var daysLeft = 4 - d;
+        if (daysLeft <= 2) {
+            alerts.push({ type: daysLeft === 0 ? 'danger' : 'warning', title: 'DoD-A-QES due ' + (daysLeft === 0 ? 'TODAY' : 'in ' + daysLeft + ' day(s)'), text: 'Protocol + PICo + Synthesis approach must be locked' });
+        }
+    }
+
+    if (d > 4 && d <= 12 && !state.dodGates.B) {
+        var daysLeft = 12 - d;
+        if (daysLeft <= 3) {
+            alerts.push({ type: daysLeft === 0 ? 'danger' : 'warning', title: 'DoD-B-QES due ' + (daysLeft === 0 ? 'TODAY' : 'in ' + daysLeft + ' day(s)'), text: 'Search complete + Saturation monitoring in place' });
+        }
+    }
+
+    if (alerts.length === 0 && d <= 40) {
+        var nextGate = !state.dodGates.A ? 'A' : !state.dodGates.B ? 'B' : !state.dodGates.C ? 'C' : !state.dodGates.D ? 'D' : 'E';
+        alerts.push({ type: 'success', title: 'On track', text: 'Next milestone: DoD-' + nextGate + '-QES' });
+    }
+
+    var html = '';
+    alerts.forEach(function(a) {
+        html += '<div class="alert alert-' + a.type + '" style="margin-bottom:8px">' +
+            '<div class="alert-icon">&#9888;</div>' +
+            '<div class="alert-content"><div class="alert-title">' + a.title + '</div>' +
+            '<div class="alert-text">' + a.text + '</div></div></div>';
+    });
+    document.getElementById('deadlineAlerts').innerHTML = html;
+}
+
+function changeDay(delta) {
+    state.day = Math.max(1, Math.min(40, state.day + delta));
+    save();
+    render();
+}
+
+const MORE_TAB_PAGES = ['stories', 'reference', 'glossary'];
+
+function toggleMoreTabs(event) {
+    event.stopPropagation();
+    var dropdown = document.getElementById('moreTabsDropdown');
+    var btn = dropdown.previousElementSibling;
+    var isOpen = dropdown.classList.contains('visible');
+    dropdown.classList.toggle('visible', !isOpen);
+    btn.setAttribute('aria-expanded', !isOpen);
+    if (!isOpen) {
+        var firstItem = dropdown.querySelector('.tab-more-item');
+        if (firstItem) firstItem.focus();
+        document.addEventListener('click', closeMoreTabsOnOutsideClick);
+        document.addEventListener('keydown', handleMoreTabsKeyboard);
+    } else {
+        document.removeEventListener('click', closeMoreTabsOnOutsideClick);
+        document.removeEventListener('keydown', handleMoreTabsKeyboard);
+    }
+}
+
+function closeMoreTabsOnOutsideClick(e) {
+    var wrapper = document.querySelector('.tab-more-wrapper');
+    if (!wrapper.contains(e.target)) closeMoreDropdown();
+}
+
+function handleMoreTabsKeyboard(e) {
+    var dropdown = document.getElementById('moreTabsDropdown');
+    if (!dropdown.classList.contains('visible')) return;
+    var items = Array.from(dropdown.querySelectorAll('.tab-more-item'));
+    var idx = items.indexOf(document.activeElement);
+    if (e.key === 'Escape') { closeMoreDropdown(); dropdown.previousElementSibling.focus(); e.preventDefault(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); items[Math.min(idx + 1, items.length - 1)].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[Math.max(idx - 1, 0)].focus(); }
+}
+
+function closeMoreDropdown() {
+    var dropdown = document.getElementById('moreTabsDropdown');
+    if (dropdown) {
+        dropdown.classList.remove('visible');
+        dropdown.previousElementSibling.setAttribute('aria-expanded', 'false');
+    }
+    document.removeEventListener('click', closeMoreTabsOnOutsideClick);
+    document.removeEventListener('keydown', handleMoreTabsKeyboard);
+}
+
+function showPageFromMore(pageId, clickedItem) {
+    closeMoreDropdown();
+    document.querySelectorAll('.tab-more-item').forEach(function(i) { i.classList.remove('active'); });
+    if (clickedItem) clickedItem.classList.add('active');
+    var moreBtn = document.querySelector('.tab-more-btn');
+    if (moreBtn) moreBtn.classList.add('has-active');
+    showPage(pageId, null);
+}
+
+function showPage(pageId, btn) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+
+    // Close More dropdown and clear its active states
+    closeMoreDropdown();
+    document.querySelectorAll('.tab-more-item').forEach(function(i) { i.classList.remove('active'); });
+    var moreBtn = document.querySelector('.tab-more-btn');
+    if (moreBtn) moreBtn.classList.remove('has-active');
+
+    if (MORE_TAB_PAGES.indexOf(pageId) !== -1) {
+        var item = document.querySelector('.tab-more-item[data-page="' + pageId + '"]');
+        if (item) item.classList.add('active');
+        if (moreBtn) moreBtn.classList.add('has-active');
+    } else if (btn && btn.classList) {
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+    }
+
+    document.getElementById('page-' + pageId).classList.add('active');
+}
+
+function showDayJump() {
+    document.getElementById('dayJumpModal').classList.add('visible');
+    var input = document.getElementById('dayJumpInput');
+    input.value = state.day;
+    input.select();
+}
+
+function closeDayJump(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('dayJumpModal').classList.remove('visible');
+}
+
+function jumpToDay() {
+    var val = parseInt(document.getElementById('dayJumpInput').value, 10) ?? 1;
+    state.day = Math.max(1, Math.min(40, val));
+    save();
+    render();
+    closeDayJump();
+    showToast('Jumped to Day ' + state.day);
+}
+
+function handleDayJumpKey(e) {
+    if (e.key === 'Enter') jumpToDay();
+    else if (e.key === 'Escape') closeDayJump();
+}
+
+function toggleBootcamp(el, module) {
+    el.classList.toggle('completed');
+    state.bootcamp[module] = el.classList.contains('completed');
+    save();
+    openBootcampLesson(module);
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    var isDark = document.body.classList.contains('dark-mode');
+    try { localStorage.setItem('metasprint_qes_dark', isDark ? 'true' : 'false'); } catch(e) {}
+    document.getElementById('darkModeBtn').textContent = isDark ? '&#9728;' : '&#127769;';
+}
+
+function loadDarkMode() {
+    if (localStorage.getItem('metasprint_qes_dark') === 'true') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('darkModeBtn').textContent = '&#9728;';
+    }
+}
+
+var _savedFocus = null;
+function openModal(id) {
+    _savedFocus = document.activeElement;
+    document.getElementById(id).classList.add('visible');
+}
+function closeModal(id) {
+    document.getElementById(id).classList.remove('visible');
+    if (_savedFocus) { try { _savedFocus.focus(); } catch(e) {} _savedFocus = null; }
+}
+
+function toggleTemplate(el) {
+    var body = el.nextElementSibling;
+    body.classList.toggle('open');
+    el.setAttribute('aria-expanded', body.classList.contains('open') ? 'true' : 'false');
+}
+
+function showOutput(id, text) {
+    var el = document.getElementById(id);
+    el.textContent = text;
+    el.classList.add('visible');
+    navigator.clipboard.writeText(text).then(function() {
+        showToast('Copied to clipboard');
+    }).catch(function() {
+        showToast('Output ready (clipboard unavailable)');
+    });
+}
+
+var toastTimer;
+function showToast(msg, type) {
+    var toast = document.getElementById('toast');
+    document.getElementById('toastText').textContent = msg;
+    toast.className = 'toast visible' + (type === 'error' ? ' error' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { toast.classList.remove('visible'); }, 2500);
+}
+
+function launchConfetti() {
+    var container = document.getElementById('confettiContainer');
+    var colors = ['#C026D3', '#059669', '#D97706', '#DC2626', '#7C3AED'];
+    for (var i = 0; i < 80; i++) {
+        var c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + '%';
+        c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDelay = Math.random() * 0.5 + 's';
+        container.appendChild(c);
+    }
+    setTimeout(function() { container.innerHTML = ''; }, 4000);
+}
+
+function exportData() {
+    var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    var url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = 'metasprint-qes-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function escapeHtml(str) {
+    if (typeof str !== 'string') return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function resetData() {
+    if (!confirm('Reset all data? This cannot be undone.')) return;
+    localStorage.removeItem('metasprint-qes');
+    location.reload();
+}
+
+var currentLesson = 0;
+var lessons = ['qes-fundamentals', 'constructs', 'casp', 'cerqual', 'entreq'];
+
+function openBootcampLesson(module) {
+    var idx = lessons.indexOf(module);
+    if (idx >= 0) currentLesson = idx;
+    showLesson();
+    openModal('bootcampModal');
+}
+
+function showLesson() {
+    lessons.forEach(function(l, i) {
+        var el = document.getElementById('lesson-' + l);
+        if (el) el.style.display = i === currentLesson ? 'block' : 'none';
+    });
+    document.getElementById('lessonCounter').textContent = (currentLesson + 1) + ' / ' + lessons.length;
+    document.getElementById('prevLessonBtn').disabled = currentLesson === 0;
+    document.getElementById('nextLessonBtn').textContent = currentLesson === lessons.length - 1 ? 'Finish' : 'Next';
+}
+
+function nextLesson() {
+    if (currentLesson < lessons.length - 1) {
+        currentLesson++;
+        showLesson();
+    } else {
+        closeModal('bootcampModal');
+        showToast('Bootcamp complete!');
+    }
+}
+
+function prevLesson() {
+    if (currentLesson > 0) {
+        currentLesson--;
+        showLesson();
+    }
+}
+
+function promptStudyCount() {
+    var current = state.studyCount ?? 0;
+    var input = prompt('Enter number of included studies:', current);
+    if (input !== null && !isNaN(parseInt(input))) {
+        state.studyCount = parseInt(input);
+        save();
+        render();
+        showToast('Study count updated');
+    }
+}
+
+function saveThemeDictionary() {
+    state.themeDictionary = document.getElementById('themeDictionary').value;
+    var lines = state.themeDictionary.split('\n').filter(function(l) { return l.trim(); });
+    state.themeCount = lines.length;
+    save();
+    render();
+    showToast('Theme dictionary saved');
+}
+
+function saveSynthesisApproach() {
+    state.synthesisApproach = {
+        method: document.getElementById('synthesisMethod').value,
+        sampling: document.getElementById('samplingStrategy').value
+    };
+    save();
+    showToast('Synthesis approach saved');
+}
+
+function saveCERQual() {
+    state.cerqual = {
+        methods: document.getElementById('cerqual-methods').value,
+        coherence: document.getElementById('cerqual-coherence').value,
+        adequacy: document.getElementById('cerqual-adequacy').value,
+        relevance: document.getElementById('cerqual-relevance').value,
+        overall: document.getElementById('cerqual-overall').value,
+        explanation: document.getElementById('cerqual-explanation').value
+    };
+    save();
+    showToast('CERQual saved');
+}
+
+function generateCERQualReport() {
+    var text = 'GRADE-CERQual ASSESSMENT\n' +
+        '=====================================\n' +
+        'Methodological limitations: ' + document.getElementById('cerqual-methods').value + '\n' +
+        'Coherence: ' + document.getElementById('cerqual-coherence').value + '\n' +
+        'Adequacy of data: ' + document.getElementById('cerqual-adequacy').value + '\n' +
+        'Relevance: ' + document.getElementById('cerqual-relevance').value + '\n\n' +
+        'OVERALL: ' + document.getElementById('cerqual-overall').value + '\n' +
+        'Explanation: ' + document.getElementById('cerqual-explanation').value;
+    showOutput('cerqual-output', text);
+}
+
+function generatePICo() {
+    var text = 'PICo FRAMEWORK\n' +
+        '=====================================\n' +
+        'Population: ' + document.getElementById('pico-p').value + '\n' +
+        'Phenomenon of Interest: ' + document.getElementById('pico-i').value + '\n' +
+        'Context: ' + document.getElementById('pico-co').value;
+    showOutput('pico-output', text);
+}
+
+function generateSOQF() {
+    var text = 'SUMMARY OF QUALITATIVE FINDINGS\n' +
+        '=====================================\n' +
+        'Finding: ' + document.getElementById('soqf-finding').value + '\n' +
+        'Contributing studies: ' + document.getElementById('soqf-studies').value + '\n' +
+        'CERQual assessment: ' + document.getElementById('soqf-cerqual').value + '\n' +
+        'Explanation: ' + document.getElementById('soqf-explanation').value;
+    showOutput('soqf-output', text);
+}
+
+function toggleStory(header) {
+    var body = header.nextElementSibling;
+    body.classList.toggle('open');
+    header.setAttribute('aria-expanded', body.classList.contains('open') ? 'true' : 'false');
+    var storyNum = header.querySelector('.story-number').textContent;
+    if (!state.storiesRead) state.storiesRead = {};
+    state.storiesRead[storyNum] = true;
+    save();
+}
+
+function openStandupModal() {
+    generateStandup();
+    document.getElementById('standupModal').classList.add('open');
+}
+
+function closeStandupModal(e) {
+    if (!e || e.target === e.currentTarget) {
+        document.getElementById('standupModal').classList.remove('open');
+    }
+}
+
+function generateStandup() {
+    var day = state.day ?? 1;
+    document.getElementById('standupYesterday').innerHTML = '<div class="standup-item">Previous day tasks</div>';
+    document.getElementById('standupToday').innerHTML = '<div class="standup-item">Current day tasks</div>';
+    document.getElementById('standupBlockers').innerHTML = '<div class="standup-item">No blockers</div>';
+    document.getElementById('standupStatus').innerHTML =
+        '<div class="standup-item">Day ' + day + '/40</div>' +
+        '<div class="standup-item">Themes: ' + (state.themeCount ?? 0) + '</div>' +
+        '<div class="standup-item">Studies: ' + (state.studyCount ?? 0) + '</div>';
+}
+
+function copyStandup() {
+    var text = 'META-SPRINT QES Standup - Day ' + state.day + '\n\n' +
+        'Yesterday: Previous tasks\n' +
+        'Today: Current tasks\n' +
+        'Blockers: None\n' +
+        'Status: Day ' + state.day + '/40, ' + (state.themeCount ?? 0) + ' themes, ' + (state.studyCount ?? 0) + ' studies';
+    navigator.clipboard.writeText(text).then(function() {
+        showToast('Standup copied!');
+        closeStandupModal();
+    }).catch(function() {
+        showToast('Standup generated (clipboard unavailable)');
+        closeStandupModal();
+    });
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        var visibleModal = document.querySelector('.modal.visible');
+        if (visibleModal) { closeModal(visibleModal.id); e.preventDefault(); return; }
+        var dayJump = document.getElementById('dayJumpModal');
+        if (dayJump && dayJump.classList.contains('visible')) { closeDayJump(); e.preventDefault(); return; }
+        var standup = document.getElementById('standupModal');
+        if (standup && standup.classList.contains('open')) { closeStandupModal(); e.preventDefault(); return; }
+        return;
+    }
+    if (document.getElementById('app').style.display === 'none') return;
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+    if (document.querySelector('.modal.visible, .day-jump-modal.visible, .standup-modal.open')) return;
+    if (e.key === 'ArrowLeft') { changeDay(-1); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { changeDay(1); e.preventDefault(); }
+});
+</script>
+
+</body>
+</html>
